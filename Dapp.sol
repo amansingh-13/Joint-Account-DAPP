@@ -3,79 +3,59 @@ pragma solidity ^0.4.24;
 contract Queue {
     mapping(uint256 => uint) queue;
     uint256 first = 1;
-    uint256 last = 0;
+    uint256 last  = 0;
 
-    function enqueue(uint data) public {
+    function enqueue(uint data) public 
+    {
         last += 1;
         queue[last] = data;
     }
 
-    function dequeue() public returns (uint data) {
-        require(last >= first); 
-
+    function dequeue() public returns (uint data)
+    {
+        require(last >= first);
         data = queue[first];
-
         delete queue[first];
         first += 1;
     }
     
-    function empty () 
-    view 
-    public
-    returns (bool)
+    function empty () view public returns (bool)
     {
-        if (last<first) {
+        if (last < first) {
             return true;
         }
         return false;
     }
 }
 
-contract Dapp{
-
-    uint256 MAX_INT = 115792089237316195423570985008687907853269984665640564039457584007913129639935;
-    uint numUser;
+contract Dapp {
+    
     struct User {
         uint user_id;
         string user_name;
-        uint is_active;
+        bool is_active;
+        uint number;
     }
-    mapping(uint=>User) available_users;
-    // mapping(address=>bbol) used_address;
+
+    uint numUser = 0;
+    mapping(uint => User) available_users;
+    uint[] parent; // index by number, value is uid
     
-    
-    struct Edge{
+    struct Edge {
         uint user_id;
         uint val;
     }
     
-    // struct Queue {
-    //     mapping(uint=>uint) data;
-    //     uint first;
-    //     uint last;
-    // }
+    mapping(uint => uint[]) peers;
+    mapping(uint => mapping(uint => uint)) public edges; // debug public
     
-    mapping(uint=>uint[]) peers;
-    mapping(uint=>mapping(uint=>uint)) edges;
-
-
-    constructor()public
-    {
-        numUser=0;
-    }
-    
-    
-    
-    function registerUser(uint uid, string name)
+    function registerUser(uint uid, string username)
     public 
     userNotPresent(uid)
     returns (bool)
     {
-        // User storage u;
-        // u.user_id=uid;
-        // u.user_name=name;
-        // u.is_active=true;
-        available_users[uid]=User(uid,name,11);
+        available_users[uid] = User(uid, username, true, numUser);
+        parent.push(0);
         numUser++;
         return true;
     }
@@ -84,13 +64,13 @@ contract Dapp{
     public
     userPresent(uid1)
     userPresent(uid2)
-    edgeNotAlreadyExist(uid1,uid2)
+    edgeNotAlreadyExist(uid1, uid2)
     returns (bool)
     {
         peers[uid1].push(uid2);
         peers[uid2].push(uid1);
-        edges[uid1][uid2]=val1;
-        edges[uid2][uid1]=val2;
+        edges[uid1][uid2] = val1;
+        edges[uid2][uid1] = val2;
         return true;
     }
 
@@ -98,141 +78,74 @@ contract Dapp{
     public
     userPresent(uid1)
     userPresent(uid2)
-    returns(bool)
+    edgeAlreadyExist(uid1, uid2)
+    returns (bool)
     {
-        uint idx=peers[uid1].length+10;
+        uint idx;
+        
         for (uint i=0; i<peers[uid1].length; i++){
             if (peers[uid1][i]==uid2){
-                idx=i;
+                idx = i;
                 break;
             }
         }
-        if (idx>=peers[uid1].length) return false;
         for (i=idx; i<peers[uid1].length-1; i++){
-            peers[uid1][i]=peers[uid1][i+1];
+            peers[uid1][i] = peers[uid1][i+1];
         }
         delete peers[uid1][peers[uid1].length-1];
         peers[uid1].length--;
-        idx=peers[uid2].length+10;
 
         for (i=0; i<peers[uid2].length; i++){
             if (peers[uid2][i]==uid1){
-                idx=i;
+                idx = i;
                 break;
             }
         }
-        if (idx>=peers[uid2].length) return false;
-
         for (i=idx; i<peers[uid2].length-1; i++){
-            peers[uid2][i]=peers[uid2][i+1];
+            peers[uid2][i] = peers[uid2][i+1];
         }
         delete peers[uid2][peers[uid2].length-1];
         peers[uid2].length--;
         
         delete edges[uid1][uid2];
         delete edges[uid2][uid1];
-        
         return true;
     }
-    
-   
-    
-    // function enqueue(Queue q, uint a) 
-    // private 
-    // returns (Queue)
-    // {
-    //     q.last+=1;
-    //     q.data[q.last]=a;
-    //     return q;
-    // }
-    
-    // function dequeu(Queue q)
-    // private 
-    // returns (uint, Queue)
-    // {
-    //     require(q.last>=q.first);
-    //     uint val=q.data[q.first];
-    //     delete q.data[q.first];
-        
-    //     return (val, q);
-    // }
-    
-    // function empty (Queue q)
-    // private 
-    // returns (bool)
-    // {
-    //     if (q.last<q.first){
-    //         return true;
-    //     }
-    //     return false;
-    // }
-    
-    // struct Helper {
-    //     mapping(uint=>bool) visited;
-    //     mapping(uint=>uint) dist;
-    //     mapping(uint=>int) pred;
-    // }
+
     function findShortestPath(uint start, uint end, uint minVal)
     private
-    returns (bool,uint [])
+    returns (bool)
     {
-        // uint n=numUser;
-        // bool[] storage visited;
-        // uint[] storage dist;
-        int[] storage pred;
-        // Helper memory h;
-        Queue q=new Queue();
-        // q.first=1;
-        // q.last=0;
+        Queue q = new Queue();
         
-        for (uint i=0; i<numUser; i++){
-            // h.visited[i]=false;
-            // h.dist[i]=MAX_INT;
-            pred[i]=-1;
+        for(uint i=0; i<numUser; i++){
+            delete parent[i];
         }
-        // h.visited[start]=true;
-        // h.dist[start]=0;
-        pred[start]=int(start);
+        
+        parent[available_users[start].number] = start;
         q.enqueue(start);
-        bool check=false;
+        bool found = false;
         while (!q.empty()){    
-            uint u;
-            u=q.dequeue();
+            uint u = q.dequeue();
             for (i=0; i<peers[u].length; i++){
-                uint cn=peers[u][i];
-                uint value=edges[u][cn];
-                
-                if (pred[cn]==-1 && value>minVal){
-                    // h.visited[cn]=true;
-                    // h.dist[cn]=h.dist[cn]+1;
-                    pred[cn]=int(u);
+                uint cn     = peers[u][i];
+                uint value  = edges[u][cn];
+                uint cn_num = available_users[cn].number;
+                if (parent[cn_num]==0 && value>=minVal){
+                    parent[cn_num] = u;
                     q.enqueue(cn);
-                    
                     if (cn==end){
-                        check=true;
+                        found = true;
                         break;
                     }
                 }
             }
+            if(found)
+                break;
         }
         
-        uint[] storage path;
-        if (check==false){
-            return (check, path);
-        }
-        
-        int crw=int(end);
-        
-        while (crw!=int(start)){
-            path.push(uint(crw));
-            crw=pred[uint(crw)];
-        }
-        path.push(start);
-        return (check, path);
-        
-        
+        return found;
     }
-    
     
     function sendAmount(uint uid1, uint uid2, uint val)
     public
@@ -240,49 +153,39 @@ contract Dapp{
     userPresent(uid2)
     returns (bool)
     {
-        bool check;
-        uint[] memory path; 
-        (check,path)=findShortestPath(uid1, uid2, val);
-        return true;
-        if (check==false){
+        bool found = findShortestPath(uid1, uid2, val);
+    
+        if(!found){
+            require(false, "No path found");
             return false;
         }
-        for (uint i=path.length-1; i>0; i--){
-            edges[path[i]][path[i-1]]-=val;
-            edges[path[i-1]][path[i]]+=val;
+        uint crw     = uid2;
+        uint crw_num = available_users[uid2].number;
+        while(crw != uid1){
+            edges[crw][parent[crw_num]] += val;
+            edges[parent[crw_num]][crw] -= val;
+            crw     = parent[crw_num];
+            crw_num = available_users[parent[crw_num]].number;
         }
         return true;
-        
     }
 
-
-
-
-    
-    
     modifier userPresent(uint id){
-        require(available_users[id].is_active==11);
+        require(available_users[id].is_active, "User ID already taken");
         _;
     }
     
     modifier userNotPresent(uint id){
-        require(available_users[id].is_active!=11);
+        require(!available_users[id].is_active);
         _;
         
     }
-    // modifier notRegisteredOnce(address adr){
-    //     require(~used_address[adr]);
-    //     _;
-    // }
-    // modifier legalAccess(address adr, uint uid){
-    //     require(available_users[uid].addr=adr);
-    //     _;
-    // }
+    
     modifier edgeNotAlreadyExist(uint uid1, uint uid2){
-        bool check=false;
+        bool check = false;
         for (uint i=0; i<peers[uid1].length;i++){
             if (peers[uid1][i]==uid2){
-                check=true;
+                check = true;
                 break;
             }
         }
@@ -290,16 +193,14 @@ contract Dapp{
         _;
     }
     modifier edgeAlreadyExist(uint uid1, uint uid2){
-        bool check=false;
+        bool check = false;
         for (uint i=0; i<peers[uid1].length;i++){
             if (peers[uid1][i]==uid2){
-                check=true;
+                check = true;
                 break;
             }
         }
-        require(check==true);
+        require(check==true, "Joint account already exists");
         _;
     }
-    
-    
 }
