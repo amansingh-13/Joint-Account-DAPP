@@ -1,0 +1,10 @@
+solidity
+venv/
+artifacts/
+test-eth1/
+contractAddressList
+*.sh
+*.txt
+*.json
+*.txt
+__pycache__/

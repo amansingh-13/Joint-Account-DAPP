@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >=0.4.24;
 
 contract Queue {
     mapping(uint256 => uint) queue;
@@ -49,7 +49,7 @@ contract Dapp {
     mapping(uint => uint[]) peers;
     mapping(uint => mapping(uint => uint)) public edges; // debug public
     
-    function registerUser(uint uid, string username)
+    function registerUser(uint uid, string memory username)
     public 
     userNotPresent(uid)
     returns (bool)
