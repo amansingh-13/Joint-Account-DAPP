@@ -52,12 +52,12 @@ contract Dapp {
     function registerUser(uint uid, string memory username)
     public 
     userNotPresent(uid)
-    returns (bool)
+    
     {
         available_users[uid] = User(uid, username, true, numUser);
         parent.push(0);
         numUser++;
-        return true;
+        // return true;
     }
     
     function createAcc(uint uid1, uint uid2, uint val1, uint val2)
@@ -65,13 +65,13 @@ contract Dapp {
     userPresent(uid1)
     userPresent(uid2)
     edgeNotAlreadyExist(uid1, uid2)
-    returns (bool)
+    
     {
         peers[uid1].push(uid2);
         peers[uid2].push(uid1);
         edges[uid1][uid2] = val1;
         edges[uid2][uid1] = val2;
-        return true;
+        // return true;
     }
 
     function closeAccount(uint uid1, uint uid2)
@@ -79,7 +79,7 @@ contract Dapp {
     userPresent(uid1)
     userPresent(uid2)
     edgeAlreadyExist(uid1, uid2)
-    returns (bool)
+    
     {
         uint idx;
         
@@ -109,7 +109,7 @@ contract Dapp {
         
         delete edges[uid1][uid2];
         delete edges[uid2][uid1];
-        return true;
+        // return true;
     }
 
     function findShortestPath(uint start, uint end, uint minVal)
@@ -151,13 +151,13 @@ contract Dapp {
     public
     userPresent(uid1)
     userPresent(uid2)
-    returns (bool)
+    
     {
         bool found = findShortestPath(uid1, uid2, val);
     
         if(!found){
             require(false, "No path found");
-            return false;
+            // return false;
         }
         uint crw     = uid2;
         uint crw_num = available_users[uid2].number;
@@ -167,7 +167,7 @@ contract Dapp {
             crw     = parent[crw_num];
             crw_num = available_users[parent[crw_num]].number;
         }
-        return true;
+        // return true;
     }
 
     modifier userPresent(uint id){
