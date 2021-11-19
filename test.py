@@ -4,7 +4,7 @@ import os
 
 
 if __name__=="__main__":
-    source_path = os.environ['HOME']+'/HW3/Dapp.sol'
+    source_path = './Dapp.sol'
 
     dapp = Dapp(source_path)
 

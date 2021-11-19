@@ -7,12 +7,12 @@ import os
 
 def connectWeb3():
     # print(os.environ['HOME']+'/HW3/test-eth1/geth.ipc')
-    return Web3(Web3.IPCProvider(os.environ['HOME']+'/HW3/test-eth1/geth.ipc', timeout=100000))
+    return Web3(Web3.IPCProvider('/home/aman/Sem5/CS765/HW3/test-eth1/geth.ipc', timeout=100000))
 
 def compile_source_file(file_path):
    with open(file_path, 'r') as f:
       source = f.read()
-   return compile_source(source=source, solc_binary="/home/shivam/HW3/solc")
+   return compile_source(source=source, solc_binary="/home/aman/Sem5/CS765/HW3/solc")
 
 
 
@@ -27,7 +27,7 @@ def deployEmptyContract(source_path, w3, account):
     # curBlock = w3.eth.getBlock('latest')
     tx_hash = w3.eth.contract(
             abi=contract_interface3['abi'],
-            bytecode=contract_interface3['bin']).constructor().transact({'txType':"0x0", 'from':account, 'gas':1000000})
+            bytecode=contract_interface3['bin']).constructor().transact({'txType':"0x0", 'from':account, 'gas':3000000})
     
     return tx_hash, contract_interface3
 
@@ -39,9 +39,9 @@ def deployContracts(source_path,w3, account):
     
     receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
-    # while ((receipt3 is None)) :
-    #     time.sleep(1)
-    #     receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
+    while ((receipt3 is None)) :
+        time.sleep(1)
+        receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
     # w3.miner.stop()
     # receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)

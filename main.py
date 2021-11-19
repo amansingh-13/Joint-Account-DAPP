@@ -25,7 +25,7 @@ def generate_network(n_nodes):
 
 if __name__=="__main__":
 
-    source_path = os.environ['HOME']+'/HW3/Dapp.sol'
+    source_path = './Dapp.sol'
 
     dapp = Dapp(source_path)
 
@@ -66,18 +66,28 @@ if __name__=="__main__":
     print ("Network created")
     print("Sending Transaction Stream")
     to_graph = []
-    # success = 0    
+    success = 0    
     txn_data=[]
     for txn in range(1000):
         x, y = np.random.choice(NUM_NODES, 2, replace=False)
-        # success += dapp.sendAmount(x, y, 1)
-        txn_data.append((x, y, 1))
+        #success += dapp.sendAmount(x, y, 1)
+        #print(success)
 
-        # if((txn+1) % 100 == 0):
-            # to_graph.append(success / (txn+1))
-            # print (f"{txn}:")
-            # print (to_graph)
-    to_graph=dapp.bulk_sendAmount(txn_data)
+        txn_data.append((x, y, 1))
+        if((txn+1)%25 == 0):
+            success += dapp.bulk_sendAmount(txn_data)
+            txn_data = []
+            print (f"Txn : {txn+1}, Success : {success}")
+            
+            if((txn+1)%100 == 0):
+                to_graph.append(success / (txn+1))
+
+
+        #if((txn+1) % 100 == 0):
+        #    to_graph.append(success / (txn+1))
+        #    print (f"{txn}:")
+        #    print (to_graph)
+
     print ("final results")
     print (to_graph)
     dapp.exit()

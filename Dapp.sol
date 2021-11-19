@@ -32,14 +32,11 @@ contract Dapp {
     function registerUser(uint uid, string memory username)
     public 
     userNotPresent(uid)
-    
     {
         emit UserAdded(uid);
         available_users[uid] = User(uid, username, true, numUser);
         parent.push(0);
         numUser++;
-        
-        // return true;
     }
     
     function createAcc(uint uid1, uint uid2, uint val1, uint val2)

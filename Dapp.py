@@ -24,7 +24,7 @@ class Dapp:
         # print("Waiting for 50 seconds")
         # time.sleep(40)
         print('Port connected')
-        self.w3.geth.miner.start(4)
+        self.w3.geth.miner.start(1)
         time.sleep(4)
         print("Miner started")
         self.contract_interface, self.address = deployContracts(source_path=source_path,w3=self.w3, account=self.account)
@@ -66,7 +66,7 @@ class Dapp:
     def registerUser(self,uid, username):
         tx_hash=self.contract.functions.registerUser(uid,username).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
-        receipt=None 
+        receipt=None
         # receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
             time.sleep(1)
@@ -172,7 +172,7 @@ class Dapp:
         
     
     def sendAmount(self, uid1, uid2, val):
-        tx_hash=self.contract.functions.sendAmount(uid1, uid2, val).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+        tx_hash=self.contract.functions.sendAmount(int(uid1), int(uid2), int(val)).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
         receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         # while receipt is None:
@@ -198,7 +198,7 @@ class Dapp:
         is_complete=[False]*num_txn
         num_successful=0
 
-        success_ratio=[]
+        # success_ratio=[]
         while num_pending!=0:
             # time.sleep(10)
             for i in range (num_txn):
@@ -209,11 +209,11 @@ class Dapp:
                             num_successful+=1
                         num_pending-=1
                         is_complete[i]=True 
-                        if (num_txn-num_pending)%100==99:
-                            print (f'{num_txn-num_pending} transactions executed')
-                            success_ratio.append(num_successful/(num_txn-num_pending))
+                        #if (num_txn-num_pending)%100==99:
+                        #    print (f'{num_txn-num_pending} transactions executed')
+                        #    success_ratio.append(num_successful/(num_txn-num_pending))
         
-        return success_ratio 
+        return num_successful 
 
 
 
