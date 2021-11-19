@@ -3,7 +3,7 @@ import time
 import pprint
 
 from web3 import *
-from solc import compile_source
+from solcx import compile_source
 import os
 
 def maximum(a, b, c): 

@@ -1,4 +1,4 @@
-pragma solidity >=0.4.24;
+pragma solidity ^0.8;
 
 
 contract Dapp {
@@ -9,6 +9,7 @@ contract Dapp {
         bool is_active;
         uint number;
     }
+    event UserAdded(uint);
 
     uint numUser = 0;
     uint check_alive=0;
@@ -31,12 +32,13 @@ contract Dapp {
     function registerUser(uint uid, string memory username)
     public 
     userNotPresent(uid)
-    
+    returns(bool)
     {
         available_users[uid] = User(uid, username, true, numUser);
         parent.push(0);
         numUser++;
-        // return true;
+        emit UserAdded(uid);
+        return true;
     }
     
     function createAcc(uint uid1, uint uid2, uint val1, uint val2)
