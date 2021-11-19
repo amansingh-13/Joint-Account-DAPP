@@ -50,11 +50,11 @@ def deployContracts(w3, account):
     tx_hash3 = deployEmptyContract(empty_source_path, w3, account)
 
     
-    receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+    receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
     while ((receipt3 is None)) :
         time.sleep(1)
-        receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+        receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
     w3.miner.stop()
 

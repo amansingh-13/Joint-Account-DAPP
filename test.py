@@ -8,6 +8,8 @@ if __name__=="__main__":
 
     dapp = Dapp(source_path)
 
+    print ("Checking if contract is alive")
+
     alive= dapp.check_alive()
 
     if not alive:

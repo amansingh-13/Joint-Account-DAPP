@@ -2,15 +2,17 @@
 import time
 # import pprint
 
-from web3 import *
+# from web3 import *
+from web3 import Web3
 # from solc import compile_source
 # import os
 import sys 
+import web3 
 
 
 
 from utils import deployContracts, connectWeb3
-
+# from web3.exceptions import TransactionNotFound
 
 
 class Dapp:
@@ -22,7 +24,7 @@ class Dapp:
         # print("Waiting for 50 seconds")
         # time.sleep(40)
         print('Port connected')
-        self.w3.miner.start(1)
+        self.w3.geth.miner.start(4)
         time.sleep(4)
         print("Miner started")
         self.contract_interface, self.address = deployContracts(source_path=source_path,w3=self.w3, account=self.account)
@@ -38,17 +40,21 @@ class Dapp:
         print(curBlock)
     
     def exit(self):
-        self.w3.miner.stop()
+        self.w3.geth.miner.stop()
 
     def check_alive(self) :
         tx_hash=self.contract.functions.alive().transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
             time.sleep(1)
-            receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+            try:
+                receipt=self.w3.eth.get_transaction_receipt(tx_hash)
+            except web3.exceptions.TransactionNotFound:
+                continue
 
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+
+        # receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt is not None:
             # print (receipt)
@@ -60,16 +66,22 @@ class Dapp:
     def registerUser(self,uid, username):
         tx_hash=self.contract.functions.registerUser(uid,username).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=None 
+        # receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
             time.sleep(1)
-            receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+            try:
+                receipt=self.w3.eth.get_transaction_receipt(tx_hash)
+            except web3.exceptions.TransactionNotFound:
+                receipt=None
+                
 
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        # receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt is not None:
-            # return receipt.status 
             return receipt
+            # return (receipt['status']==1)
+            # return receipt
         
         return False
 
@@ -87,7 +99,7 @@ class Dapp:
         while num_pending!=0:
             for i in range (num_txn):
                 if not is_complete[i]:
-                    receipt=self.w3.eth.getTransactionReceipt(tx_hash[i])
+                    receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash[i])
                     if receipt is not None :
                         num_pending-=1
                         is_complete[i]=True 
@@ -105,12 +117,12 @@ class Dapp:
     def createAcc(self, uid1, uid2, val1, val2):
         tx_hash=self.contract.functions.createAcc(uid1, uid2, val1, val2).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
             time.sleep(1)
-            receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+            receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt is not None:
             # return receipt.status 
@@ -132,7 +144,7 @@ class Dapp:
         while num_pending!=0:
             for i in range (num_txn):
                 if not is_complete[i]:
-                    receipt=self.w3.eth.getTransactionReceipt(tx_hash[i])
+                    receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash[i])
                     if receipt is not None :
                         num_pending-=1
                         is_complete[i]=True 
@@ -145,12 +157,12 @@ class Dapp:
     def closeAccount(self, uid1, uid2):
         tx_hash=self.contract.functions.closeAccount(uid1, uid2).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
             time.sleep(1)
-            receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+            receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt is not None:
             # return receipt.status 
@@ -162,12 +174,12 @@ class Dapp:
     def sendAmount(self, uid1, uid2, val):
         tx_hash=self.contract.functions.sendAmount(uid1, uid2, val).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
             time.sleep(1)
-            receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+            receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        receipt=self.w3.eth.getTransactionReceipt(tx_hash)
+        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt is not None:
             # return receipt.status 
@@ -188,7 +200,7 @@ class Dapp:
         while num_pending!=0:
             for i in range (num_txn):
                 if not is_complete[i]:
-                    receipt=self.w3.eth.getTransactionReceipt(tx_hash[i])
+                    receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash[i])
                     if receipt is not None :
                         num_pending-=1
                         is_complete[i]=True 

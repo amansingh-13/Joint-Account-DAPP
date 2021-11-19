@@ -1,13 +1,13 @@
 import time
 # import pprint
 
-from web3 import *
+from web3 import Web3
 from solc import compile_source
 import os
 
 def connectWeb3():
     # print(os.environ['HOME']+'/HW3/test-eth1/geth.ipc')
-    return Web3(IPCProvider(os.environ['HOME']+'/HW3/test-eth1/geth.ipc', timeout=100000))
+    return Web3(Web3.IPCProvider(os.environ['HOME']+'/HW3/test-eth1/geth.ipc', timeout=100000))
 
 def compile_source_file(file_path):
    with open(file_path, 'r') as f:
@@ -37,14 +37,14 @@ def deployContracts(source_path,w3, account):
 
     
     
-    receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+    receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
     while ((receipt3 is None)) :
         time.sleep(1)
-        receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+        receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
     # w3.miner.stop()
-    receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+    # receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
     
     if receipt3 is not None:
         # f=open("contractAddressList","w")

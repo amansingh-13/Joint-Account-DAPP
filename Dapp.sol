@@ -154,12 +154,13 @@ contract Dapp {
     }
 
     modifier userPresent(uint id){
-        require(available_users[id].is_active, "User ID already taken");
+        // require(available_users[id].is_active, "User ID already taken");
+        assert(available_users[id].is_active);
         _;
     }
     
     modifier userNotPresent(uint id){
-        require(!available_users[id].is_active);
+        assert(!available_users[id].is_active);
         _;
         
     }

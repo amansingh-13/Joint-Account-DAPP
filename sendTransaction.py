@@ -54,16 +54,16 @@ time.sleep(50)
 w3.miner.start(1)
 
 
-receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
 while ((receipt3 is None)) : 
     time.sleep(1)
 
-    receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+    receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
     # break
 
 
-receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
+receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
 if receipt3 is not None:
     print("empty:{0}".format(receipt3['gasUsed']))
