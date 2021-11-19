@@ -1,4 +1,4 @@
-from web3 import *
+from web3 import Web3
 import time 
 import numpy as np
 import networkx as nx
@@ -66,15 +66,18 @@ if __name__=="__main__":
     print ("Network created")
     print("Sending Transaction Stream")
     to_graph = []
-    success = 0    
+    # success = 0    
+    txn_data=[]
     for txn in range(1000):
         x, y = np.random.choice(NUM_NODES, 2, replace=False)
-        success += dapp.sendAmount(x, y, 1)
+        # success += dapp.sendAmount(x, y, 1)
+        txn_data.append((x, y, 1))
 
-        if((txn+1) % 100 == 0):
-            to_graph.append(success / (txn+1))
-            print (f"{txn}:")
-            print (to_graph)
+        # if((txn+1) % 100 == 0):
+            # to_graph.append(success / (txn+1))
+            # print (f"{txn}:")
+            # print (to_graph)
+    to_graph=dapp.bulk_sendAmount(txn_data)
     print ("final results")
     print (to_graph)
     dapp.exit()

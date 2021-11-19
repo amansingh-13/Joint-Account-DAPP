@@ -151,22 +151,22 @@ class Dapp:
                         if (num_txn-num_pending)%20==0:
                             print (f'{num_txn-num_pending} edges added')
         
-        return True 
+        # return True 
 
 
     def closeAccount(self, uid1, uid2):
         tx_hash=self.contract.functions.closeAccount(uid1, uid2).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
         receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
-        while receipt is None:
-            time.sleep(1)
-            receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
+        # while receipt is None:
+        #     time.sleep(1)
+        #     receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
+        # receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt is not None:
-            # return receipt.status 
-            return True
+            return (receipt['status']==1)
+            # return True
         
         return False
         
@@ -175,39 +175,45 @@ class Dapp:
         tx_hash=self.contract.functions.sendAmount(uid1, uid2, val).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
         time.sleep(0.01)
         receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
-        while receipt is None:
-            time.sleep(1)
-            receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
+        # while receipt is None:
+        #     time.sleep(1)
+        #     receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
+        # receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         if receipt is not None:
-            # return receipt.status 
-            return True
+            return (receipt['status']==1)
+            # return True
         
         return False
     
     def bulk_sendAmount (self, data):
         tx_hash=[]
         for a in data:
-            th=self.contract.functions.sendAmount(a[0], a[1], a[2]).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+            th=self.contract.functions.sendAmount(int(a[0]), int(a[1]), int(a[2])).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
             tx_hash.append(th)
         
         num_pending=len(tx_hash)
         num_txn=len(tx_hash)
         is_complete=[False]*num_txn
+        num_successful=0
 
+        success_ratio=[]
         while num_pending!=0:
+            # time.sleep(10)
             for i in range (num_txn):
                 if not is_complete[i]:
                     receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash[i])
                     if receipt is not None :
+                        if receipt['status']==1:
+                            num_successful+=1
                         num_pending-=1
                         is_complete[i]=True 
-                        if (num_txn-num_pending)%20==0:
-                            print (f'{num_txn-num_pending} edges added')
+                        if (num_txn-num_pending)%100==99:
+                            print (f'{num_txn-num_pending} transactions executed')
+                            success_ratio.append(num_successful/(num_txn-num_pending))
         
-        return True 
+        return success_ratio 
 
 
 
