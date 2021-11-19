@@ -7,9 +7,10 @@ import sys
 # import matplotlib.pyplot as plt
 
 from Dapp import Dapp
-# from contract_compile import connectWeb3
+
 
 NUM_NODES = 100
+
 
 def generate_network(n_nodes):
     G = nx.erdos_renyi_graph(10, 0.5, directed=False, seed=13)

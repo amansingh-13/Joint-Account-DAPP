@@ -2,7 +2,7 @@ pragma solidity ^0.8;
 
 
 contract Dapp {
-    
+    //data structure to store user data
     struct User {
         uint user_id;
         string user_name;
@@ -11,9 +11,9 @@ contract Dapp {
     }
     event UserAdded(uint uid);
 
-    uint numUser = 0;
+    uint numUser = 0; // number of users in network 
     uint check_alive=0;
-    mapping(uint => User) available_users;
+    mapping(uint => User) available_users; // dictionary from user_id=> user_data 
     uint[] parent; // index by number, value is uid
     
     struct Edge {
@@ -24,11 +24,13 @@ contract Dapp {
     mapping(uint => uint[]) peers;
     mapping(uint => mapping(uint => uint)) public edges; // debug public
     
+    // dummy function to check if contract has been successfully deployed
     function alive()
     public 
     {
         check_alive=1;
     }
+    //registering new user 
     function registerUser(uint uid, string memory username)
     public 
     userNotPresent(uid)
@@ -39,6 +41,7 @@ contract Dapp {
         numUser++;
     }
     
+    //creating joint account of two user 
     function createAcc(uint uid1, uint uid2, uint val1, uint val2)
     public
     userPresent(uid1)
@@ -50,9 +53,9 @@ contract Dapp {
         peers[uid2].push(uid1);
         edges[uid1][uid2] = val1;
         edges[uid2][uid1] = val2;
-        // return true;
     }
 
+    // closing joint account of two user 
     function closeAccount(uint uid1, uint uid2)
     public
     userPresent(uid1)
@@ -86,9 +89,10 @@ contract Dapp {
         
         delete edges[uid1][uid2];
         delete edges[uid2][uid1];
-        // return true;
+        
     }
 
+    // finding shortest path to send amount form one user to another
     function findShortestPath(uint start, uint end, uint minVal)
     private
     returns (bool)
@@ -124,6 +128,7 @@ contract Dapp {
         return found;
     }
     
+    // send amount from one user to another 
     function sendAmount(uint uid1, uint uid2, uint val)
     public
     userPresent(uid1)
@@ -134,7 +139,7 @@ contract Dapp {
     
         if(!found){
             require(false, "No path found");
-            // return false;
+         
         }
         uint crw     = uid2;
         uint crw_num = available_users[uid2].number;
@@ -144,21 +149,22 @@ contract Dapp {
             crw     = parent[crw_num];
             crw_num = available_users[parent[crw_num]].number;
         }
-        // return true;
+        
     }
 
+    // check if user_id alreay exist 
     modifier userPresent(uint id){
-        // require(available_users[id].is_active, "User ID already taken");
         assert(available_users[id].is_active);
         _;
     }
-    
+    //check if user_id is free
     modifier userNotPresent(uint id){
         assert(!available_users[id].is_active);
         _;
         
     }
     
+    // check absence of joint account between two users 
     modifier edgeNotAlreadyExist(uint uid1, uint uid2){
         bool check = false;
         for (uint i=0; i<peers[uid1].length;i++){
@@ -170,6 +176,8 @@ contract Dapp {
         require(check==false);
         _;
     }
+
+    // check presence of joint account between two users 
     modifier edgeAlreadyExist(uint uid1, uint uid2){
         bool check = false;
         for (uint i=0; i<peers[uid1].length;i++){
@@ -183,18 +191,20 @@ contract Dapp {
     }
 }
 
+// Queue data structure, used to find shortes path between two nodes
 contract Queue {
     mapping(uint256 => uint) queue;
-    uint256 first = 1;
+    uint256 first = 1; 
     uint256 last  = 0;
 
-
+    // add data to queue
     function enqueue(uint data) public 
     {
         last += 1;
         queue[last] = data;
     }
 
+    //pop and return data from queue
     function dequeue() public returns (uint data)
     {
         require(last >= first);
@@ -203,6 +213,7 @@ contract Queue {
         first += 1;
     }
     
+    // check if queue is empty 
     function empty () view public returns (bool)
     {
         if (last < first) {
