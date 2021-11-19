@@ -20,6 +20,9 @@ def deployEmptyContract(source_path, w3, account):
     # compiled_sol = compile_source_file(contract_source_path)
     compiled_sol = compile_source_file(source_path)
     contract_id, contract_interface3 = compiled_sol.popitem()
+    if contract_id=="<stdin>:Queue":
+        contract_id, contract_interface3 = compiled_sol.popitem()
+    assert(contract_id=="<stdin>:Dapp")
     # contract_interface3=get_interface(source_path=source_path)
     # curBlock = w3.eth.getBlock('latest')
     tx_hash = w3.eth.contract(
@@ -40,14 +43,14 @@ def deployContracts(source_path,w3, account):
         time.sleep(1)
         receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
 
-    w3.miner.stop()
-
+    # w3.miner.stop()
+    receipt3 = w3.eth.getTransactionReceipt(tx_hash3)
     
     if receipt3 is not None:
         # f=open("contractAddressList","w")
         # print("empty:{0}".format(receipt3['contractAddress']), file=f)
         # f.close() 
-
+        print("Contract Deployed")
         return contract_interface,receipt3['contractAddress']
     
     return None,-1

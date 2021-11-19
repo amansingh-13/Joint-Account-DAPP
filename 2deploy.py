@@ -40,10 +40,19 @@ def connectWeb3():
 def deployEmptyContract(contract_source_path, w3, account):
     compiled_sol = compile_source_file(contract_source_path)
     contract_id, contract_interface3 = compiled_sol.popitem()
+    # print (contract_id)
+    if contract_id=="<stdin>:Queue":
+        contract_id, contract_interface3 = compiled_sol.popitem()
+        # print (contract_id)
+    # print (contract_interface3)
+    # contract_id, contract_interface3 = compiled_sol.popitem()
+    # print (contract_interface3)
+    # for key, value in compiled_sol.items():
+        # print (key)
     curBlock = w3.eth.getBlock('latest')
     tx_hash = w3.eth.contract(  
             abi=contract_interface3['abi'],
-            bytecode=contract_interface3['bin']).constructor(4).transact({'txType':"0x0", 'from':account, 'gas':1000000})
+            bytecode=contract_interface3['bin']).constructor().transact({'txType':"0x0", 'from':account, 'gas':1000000})
     return tx_hash
 
 def deployContracts(w3, account):
@@ -63,7 +72,8 @@ def deployContracts(w3, account):
         print("empty:{0}".format(receipt3['contractAddress']))
 
 
-empty_source_path = os.environ['HOME']+'/HW3/emptyLoop.sol'
+# empty_source_path = os.environ['HOME']+'/HW3/emptyLoop.sol'
+empty_source_path = os.environ['HOME']+'/HW3/Dapp.sol'
 
 
 w3 = connectWeb3()

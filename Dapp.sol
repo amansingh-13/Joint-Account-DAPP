@@ -1,32 +1,5 @@
 pragma solidity >=0.4.24;
 
-contract Queue {
-    mapping(uint256 => uint) queue;
-    uint256 first = 1;
-    uint256 last  = 0;
-
-    function enqueue(uint data) public 
-    {
-        last += 1;
-        queue[last] = data;
-    }
-
-    function dequeue() public returns (uint data)
-    {
-        require(last >= first);
-        data = queue[first];
-        delete queue[first];
-        first += 1;
-    }
-    
-    function empty () view public returns (bool)
-    {
-        if (last < first) {
-            return true;
-        }
-        return false;
-    }
-}
 
 contract Dapp {
     
@@ -37,7 +10,8 @@ contract Dapp {
         uint number;
     }
 
-    uint numUser = 0;
+    uint numUser;
+    uint check_alive=0;
     mapping(uint => User) available_users;
     uint[] parent; // index by number, value is uid
     
@@ -49,6 +23,15 @@ contract Dapp {
     mapping(uint => uint[]) peers;
     mapping(uint => mapping(uint => uint)) public edges; // debug public
     
+    constructor() public {
+        numUser=0;
+    }
+    
+    function alive()
+    public 
+    {
+        check_alive=1;
+    }
     function registerUser(uint uid, string memory username)
     public 
     userNotPresent(uid)
@@ -202,5 +185,37 @@ contract Dapp {
         }
         require(check==true, "Joint account already exists");
         _;
+    }
+}
+contract Queue {
+    mapping(uint256 => uint) queue;
+    uint256 first = 1;
+    uint256 last  = 0;
+
+    constructor() public {
+        first = 1;
+        last = 0;
+    }
+
+    function enqueue(uint data) public 
+    {
+        last += 1;
+        queue[last] = data;
+    }
+
+    function dequeue() public returns (uint data)
+    {
+        require(last >= first);
+        data = queue[first];
+        delete queue[first];
+        first += 1;
+    }
+    
+    function empty () view public returns (bool)
+    {
+        if (last < first) {
+            return true;
+        }
+        return false;
     }
 }

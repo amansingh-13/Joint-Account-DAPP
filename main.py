@@ -2,10 +2,12 @@ from web3 import *
 import time 
 import numpy as np
 import networkx as nx
-import matplotlib.pyplot as plt
+import os 
+import sys 
+# import matplotlib.pyplot as plt
 
 from Dapp import Dapp
-from contract_compile import connectWeb3
+# from contract_compile import connectWeb3
 
 NUM_NODES = 100
 
@@ -27,14 +29,42 @@ if __name__=="__main__":
 
     dapp = Dapp(source_path)
 
-    for i in range(NUM_NODES):
-        dapp.registerUser(i, 'user_'+str(i))
+    alive= dapp.check_alive()
 
+    if not alive:
+        sys.exit("Contract not alive")
+
+    print ("Registering Users...")
+
+    user_data=[]
+
+    # for i in range(NUM_NODES):
+    #     dapp.registerUser(i, 'user_'+str(i))
+    #     if (i%10==9):
+    #         print (f"{i+1} users registered")
+    for i in range(NUM_NODES):
+        user_data.append((i, 'user_'+str(i)))
+    dapp.bulk_user_reg(user_data)
+    
+    print ("Users Registered")
+    print ("Generating a connected network...")
     G = generate_network(NUM_NODES)
+
+    numEdges=len(G.edges)
+    # edgesAdded=0
+    edge_data=[]
     for i,j in G.edges:
         indv_amnt = int(np.random.exponential(10) / 2)
-        dapp.createAcc(i, j, indv_amnt, indv_amnt)
+        # dapp.createAcc(i, j, indv_amnt, indv_amnt)
+        edge_data.append((i, j, indv_amnt, indv_amnt))
+        # edgesAdded+=1
+        # if (edgesAdded%10==0):
+            # print (f"{edgesAdded} edges added")
     
+    dapp.bulk_create_acc(edge_data)
+
+    print ("Network created")
+    print("Sending Transaction Stream")
     to_graph = []
     success = 0    
     for txn in range(1000):
@@ -43,9 +73,13 @@ if __name__=="__main__":
 
         if((txn+1) % 100 == 0):
             to_graph.append(success / (txn+1))
-
-    plt.plot(range(100,1000+1,100), to_graph)
-    plt.xlabel('xlabel', 'Number of transactions')
-    plt.ylabel('ylabel', 'Success rate of transactions')
-    plt.show()
+            print (f"{txn}:")
+            print (to_graph)
+    print ("final results")
+    print (to_graph)
+    dapp.exit()
+    # plt.plot(range(100,1000+1,100), to_graph)
+    # plt.xlabel('xlabel', 'Number of transactions')
+    # plt.ylabel('ylabel', 'Success rate of transactions')
+    # plt.show()
     
