@@ -10,7 +10,7 @@ contract Dapp {
         uint number;
     }
 
-    uint numUser;
+    uint numUser = 0;
     uint check_alive=0;
     mapping(uint => User) available_users;
     uint[] parent; // index by number, value is uid
@@ -22,10 +22,6 @@ contract Dapp {
     
     mapping(uint => uint[]) peers;
     mapping(uint => mapping(uint => uint)) public edges; // debug public
-    
-    constructor() public {
-        numUser=0;
-    }
     
     function alive()
     public 
@@ -72,23 +68,21 @@ contract Dapp {
                 break;
             }
         }
-        for (i=idx; i<peers[uid1].length-1; i++){
+        for (uint i=idx; i<peers[uid1].length-1; i++){
             peers[uid1][i] = peers[uid1][i+1];
         }
-        delete peers[uid1][peers[uid1].length-1];
-        peers[uid1].length--;
+        peers[uid1].pop();
 
-        for (i=0; i<peers[uid2].length; i++){
+        for (uint i=0; i<peers[uid2].length; i++){
             if (peers[uid2][i]==uid1){
                 idx = i;
                 break;
             }
         }
-        for (i=idx; i<peers[uid2].length-1; i++){
+        for (uint i=idx; i<peers[uid2].length-1; i++){
             peers[uid2][i] = peers[uid2][i+1];
         }
-        delete peers[uid2][peers[uid2].length-1];
-        peers[uid2].length--;
+        peers[uid2].pop();
         
         delete edges[uid1][uid2];
         delete edges[uid2][uid1];
@@ -110,7 +104,7 @@ contract Dapp {
         bool found = false;
         while (!q.empty()){    
             uint u = q.dequeue();
-            for (i=0; i<peers[u].length; i++){
+            for (uint i=0; i<peers[u].length; i++){
                 uint cn     = peers[u][i];
                 uint value  = edges[u][cn];
                 uint cn_num = available_users[cn].number;
@@ -187,15 +181,12 @@ contract Dapp {
         _;
     }
 }
+
 contract Queue {
     mapping(uint256 => uint) queue;
     uint256 first = 1;
     uint256 last  = 0;
 
-    constructor() public {
-        first = 1;
-        last = 0;
-    }
 
     function enqueue(uint data) public 
     {
