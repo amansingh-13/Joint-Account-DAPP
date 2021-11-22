@@ -1,0 +1,29 @@
+Following programs are required:
+	solc v0.8.9 (included in tools)
+	geth v1.9.25 (included in tools)
+	web3 (python package)
+	py-solc-x (python package)
+
+To run the smart contract follow these steps :
+
+1. Starting a private ethereum chain :
+
+	cd tools/
+	./geth --datadir test-eth1 --password password.txt account new
+
+Now copy the address gotten by running these commands to
+the genesis.json in the alloc section that adds the eth
+to the geth account.
+
+	sh runEthereumNode.sh
+
+2. Deploy the contract :
+
+In another terminal
+
+	cd ../code/
+	python3 main.py
+
+On running this, important statistics will be printed to
+the console and the required graph will be plotted.
+

@@ -14,10 +14,10 @@ class Dapp:
     def __init__(self,source_path):
         self.w3=connectWeb3() # connecting to the network 
         self.account=self.w3.eth.accounts[0] # address of node from which contract is deployed
-        print('Port connected')
+        print('[*] Connected to the network')
         self.w3.geth.miner.start(1) #starting miner
         time.sleep(4)
-        print("Miner started")
+        print("[*] Miner started")
         self.contract_interface, self.address = deployContracts(source_path=source_path,w3=self.w3, account=self.account) # contract interface and address of contract
         time.sleep(10)
         
@@ -38,7 +38,7 @@ class Dapp:
 
     # dummy function to check if contract was successfully deployed
     def check_alive(self) :
-        tx_hash=self.contract.functions.alive().transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+        tx_hash=self.contract.functions.alive().transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
         time.sleep(0.01)
         receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
@@ -55,7 +55,7 @@ class Dapp:
 
     # function to register one new user 
     def registerUser(self,uid, username):
-        tx_hash=self.contract.functions.registerUser(uid,username).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+        tx_hash=self.contract.functions.registerUser(uid,username).transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
         time.sleep(0.01)
         receipt=None
         
@@ -79,7 +79,7 @@ class Dapp:
     def bulk_user_reg(self, data):
         tx_hash=[]
         for user in data:
-            th=self.contract.functions.registerUser(user[0],user[1]).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+            th=self.contract.functions.registerUser(user[0],user[1]).transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
             tx_hash.append(th)
         
         num_pending=len(tx_hash)
@@ -105,7 +105,7 @@ class Dapp:
 
     # function ot create a joint account between to user 
     def createAcc(self, uid1, uid2, val1, val2):
-        tx_hash=self.contract.functions.createAcc(uid1, uid2, val1, val2).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+        tx_hash=self.contract.functions.createAcc(uid1, uid2, val1, val2).transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
         time.sleep(0.01)
         receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         while receipt is None:
@@ -126,7 +126,7 @@ class Dapp:
     def bulk_create_acc(self, data):
         tx_hash=[]
         for a in data:
-            th=self.contract.functions.createAcc(a[0], a[1], a[2], a[3]).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+            th=self.contract.functions.createAcc(a[0], a[1], a[2], a[3]).transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
             tx_hash.append(th)
         
         num_pending=len(tx_hash)
@@ -147,7 +147,7 @@ class Dapp:
 
     #function to close account between two user 
     def closeAccount(self, uid1, uid2):
-        tx_hash=self.contract.functions.closeAccount(uid1, uid2).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+        tx_hash=self.contract.functions.closeAccount(uid1, uid2).transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
         time.sleep(0.01)
         receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         
@@ -159,7 +159,7 @@ class Dapp:
         
     # function to send some amount from one user to another
     def sendAmount(self, uid1, uid2, val):
-        tx_hash=self.contract.functions.sendAmount(int(uid1), int(uid2), int(val)).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+        tx_hash=self.contract.functions.sendAmount(int(uid1), int(uid2), int(val)).transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
         time.sleep(0.01)
         receipt=self.w3.eth.wait_for_transaction_receipt(tx_hash)
         
@@ -175,7 +175,7 @@ class Dapp:
     def bulk_sendAmount (self, data):
         tx_hash=[]
         for a in data:
-            th=self.contract.functions.sendAmount(int(a[0]), int(a[1]), int(a[2])).transact({'txType':"0x3", 'from':self.account, 'gas':3000000})
+            th=self.contract.functions.sendAmount(int(a[0]), int(a[1]), int(a[2])).transact({'txType':"0x3", 'from':self.account, 'gas':1000000000})
             tx_hash.append(th)
         
         num_pending=len(tx_hash)

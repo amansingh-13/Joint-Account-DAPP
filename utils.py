@@ -5,13 +5,13 @@ import os
 
 # attach to ipc file
 def connectWeb3():
-    return Web3(Web3.IPCProvider('/home/aman/Sem5/CS765/HW3/test-eth1/geth.ipc', timeout=100000))
+    return Web3(Web3.IPCProvider('../HW3/test-eth1/geth.ipc', timeout=100000))
 
 #compile the given solidity file
 def compile_source_file(file_path):
    with open(file_path, 'r') as f:
       source = f.read()
-   return compile_source(source=source, solc_binary="/home/aman/Sem5/CS765/HW3/solc")
+   return compile_source(source=source, solc_binary="../HW3/solc")
 
 
 # send the deploy contarct request and return the txn_hash.
@@ -27,7 +27,7 @@ def deployEmptyContract(source_path, w3, account):
     
     tx_hash = w3.eth.contract(
             abi=contract_interface3['abi'],
-            bytecode=contract_interface3['bin']).constructor().transact({'txType':"0x0", 'from':account, 'gas':3000000})
+            bytecode=contract_interface3['bin']).constructor().transact({'txType':"0x0", 'from':account, 'gas':1000000000})
     
     return tx_hash, contract_interface3
 
@@ -44,7 +44,7 @@ def deployContracts(source_path,w3, account):
         receipt3 = w3.eth.wait_for_transaction_receipt(tx_hash3)
 
     if receipt3 is not None:
-        print("Contract Deployed")
+        print("[*] Contract Deployed")
         return contract_interface,receipt3['contractAddress']
     
     return None,-1

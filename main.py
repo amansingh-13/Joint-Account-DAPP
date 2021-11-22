@@ -4,13 +4,13 @@ import numpy as np
 import networkx as nx
 import os 
 import sys 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 from Dapp import Dapp
-
-
 NUM_NODES = 100
 
+# generates a scale free network as described here : 
+# https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model
 
 def generate_network(n_nodes):
     G = nx.erdos_renyi_graph(10, 0.5, directed=False, seed=13)
@@ -24,76 +24,63 @@ def generate_network(n_nodes):
         except: G.add_edge(i, np.random.randint(i))
     return G
 
-if __name__=="__main__":
+if __name__ == "__main__":
 
+    # deploy the Dapp    
     source_path = './Dapp.sol'
-
     dapp = Dapp(source_path)
 
-    alive= dapp.check_alive()
-
+    alive = dapp.check_alive()
     if not alive:
-        sys.exit("Contract not alive")
+        sys.exit("[ERR] Contract not alive")
 
-    print ("Registering Users...")
+    # register users to the network
 
+    print ("[ ] Registering Users...")
     user_data=[]
-
-    # for i in range(NUM_NODES):
-    #     dapp.registerUser(i, 'user_'+str(i))
-    #     if (i%10==9):
-    #         print (f"{i+1} users registered")
     for i in range(NUM_NODES):
         user_data.append((i, 'user_'+str(i)))
     dapp.bulk_user_reg(user_data)
-    
-    print ("Users Registered")
-    print ("Generating a connected network...")
-    G = generate_network(NUM_NODES)
+    print ("[*] Users Registered")
 
-    numEdges=len(G.edges)
-    # edgesAdded=0
+    # create joint accounts based on the scale-free network model
+    # initialise the account with balance from a exponential 
+    # distribution of mean 10, divided equally
+
+    print ("[ ] Generating a connected network...")
+    G = generate_network(NUM_NODES)
     edge_data=[]
     for i,j in G.edges:
         indv_amnt = int(np.random.exponential(10) / 2)
-        # dapp.createAcc(i, j, indv_amnt, indv_amnt)
         edge_data.append((i, j, indv_amnt, indv_amnt))
-        # edgesAdded+=1
-        # if (edgesAdded%10==0):
-            # print (f"{edgesAdded} edges added")
-    
     dapp.bulk_create_acc(edge_data)
+    print ("[*] Network created")
 
-    print ("Network created")
-    print("Sending Transaction Stream")
+    # Release transactions 25 at a time, wait for their 
+    # confirmation/rejection and collect required statistics
+
+    print ("[ ] Sending Transaction Stream....")
     to_graph = []
-    success = 0    
-    txn_data=[]
+    success  = 0  
+    txn_data = []
     for txn in range(1000):
         x, y = np.random.choice(NUM_NODES, 2, replace=False)
-        #success += dapp.sendAmount(x, y, 1)
-        #print(success)
-
         txn_data.append((x, y, 1))
+
         if((txn+1)%25 == 0):
             success += dapp.bulk_sendAmount(txn_data)
             txn_data = []
-            print (f"Txn : {txn+1}, Success : {success}")
-            
+            print (f"Txns generated : {txn+1}, Successful Txns : {success}")        
             if((txn+1)%100 == 0):
                 to_graph.append(success / (txn+1))
 
-
-        #if((txn+1) % 100 == 0):
-        #    to_graph.append(success / (txn+1))
-        #    print (f"{txn}:")
-        #    print (to_graph)
-
-    print ("final results")
-    print (to_graph)
+    # stop the miner
     dapp.exit()
-    # plt.plot(range(100,1000+1,100), to_graph)
-    # plt.xlabel('xlabel', 'Number of transactions')
-    # plt.ylabel('ylabel', 'Success rate of transactions')
-    # plt.show()
+
+    # print results and draw the graph
+    print ("Ratio of successful txns (after every 100 txns) :", to_graph)
+    plt.plot(range(100,1000+1,100), to_graph)
+    plt.xlabel('Number of transactions')
+    plt.ylabel('Success rate of transactions')
+    plt.show()
     
